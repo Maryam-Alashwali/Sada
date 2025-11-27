@@ -1,0 +1,70 @@
+﻿@model Sada.ViewModels.Client.AddReviewViewModel
+
+<!-- Add Review Modal -->
+<div class="modal fade" id="reviewModal@(Model.OrderId)" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Review</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-area="Client" asp-controller="ClientOrder" asp-action="AddReview" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="OrderId" value="@Model.OrderId" />
+
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Rating</label>
+                        <div class="rating-input text-center">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                <input type="radio" name="Rating" value="@i" id="rating@(Model.OrderId)_@i" required />
+                                <label for="rating@(Model.OrderId)_@i">
+                                    <i class="fas fa-star"></i>
+                                </label>
+                            }
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Review Comment</label>
+                        <textarea name="Comment" class="form-control" rows="4"
+                                  placeholder="Share your experience with this tailor..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Submit Review</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .rating-input {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+    }
+
+        .rating-input input {
+            display: none;
+        }
+
+        .rating-input label {
+            cursor: pointer;
+            font-size: 2rem;
+            color: #ddd;
+            transition: color 0.2s;
+        }
+
+            .rating-input input:checked ~ label,
+            .rating-input label:hover,
+            .rating-input label:hover ~ label {
+                color: #ffc107;
+            }
+
+        .rating-input input:checked + label {
+            color: #ffc107;
+        }
+</style>

@@ -1,0 +1,118 @@
+﻿@* Views/Shared/_Navbar.cshtml (navbar.blade.php) *@
+<ul class="navbar-nav m-auto">
+    <li class="nav-item">
+        <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" && ViewContext.RouteData.Values["controller"]?.ToString() == "Guest" ? "active-custom" : "")"
+           asp-controller="Guest" asp-action="Index">Home</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Tailors" ? "active-custom" : "")"
+           asp-controller="Guest" asp-action="Tailors">Find Tailors</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#ads-section">Advertisements</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#Categories">Categories</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#Contact">Contact Us</a>
+    </li>
+</ul>
+
+<div class="d-flex align-items-center">
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <!-- Messages Icon -->
+        @if (User.IsInRole("client"))
+        {
+            <a asp-area="Client" asp-controller="Message" asp-action="Index" class="btn btn-outline-primary position-relative me-2">
+                <i class="fas fa-envelope"></i>
+                @{
+                    var clientUnreadCount = ViewBag.UnreadMessagesCount ?? 0;
+                }
+                @if (clientUnreadCount > 0)
+                {
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        @clientUnreadCount
+                        <span class="visually-hidden">unread messages</span>
+                    </span>
+                }
+            </a>
+        }
+        else if (User.IsInRole("tailor"))
+        {
+            <a asp-area="Tailor" asp-controller="Message" asp-action="Index" class="btn btn-outline-primary position-relative me-2">
+                <i class="fas fa-envelope"></i>
+                @{
+                    var tailorUnreadCount = ViewBag.UnreadMessagesCount ?? 0;
+                }
+                @if (tailorUnreadCount > 0)
+                {
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        @tailorUnreadCount
+                        <span class="visually-hidden">unread messages</span>
+                    </span>
+                }
+            </a>
+        }
+
+        <!-- User Dropdown -->
+        <div class="dropdown">
+            <button class="btn btn-outline-primary dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown">
+                <i class="fas fa-user me-1"></i> @User.Identity.Name
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                @if (User.IsInRole("tailor"))
+                {
+                    <li><a class="dropdown-item" asp-area="Tailor" asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
+                    <li><a class="dropdown-item" asp-area="Tailor" asp-controller="Profile" asp-action="Show">Profile</a></li>
+                    <li>
+                        <a class="dropdown-item" asp-area="Tailor" asp-controller="Message" asp-action="Index">
+                            <i class="fas fa-envelope me-2"></i>Messages
+                            @{
+                                var tailorMsgCount = ViewBag.UnreadMessagesCount ?? 0;
+                            }
+                            @if (tailorMsgCount > 0)
+                            {
+                                <span class="badge bg-danger float-end">@tailorMsgCount</span>
+                            }
+                        </a>
+                    </li>
+                }
+                else if (User.IsInRole("client"))
+                {
+                    <li><a class="dropdown-item" asp-area="Client" asp-controller="Client" asp-action="Dashboard">My Dashboard</a></li>
+                    <li><a class="dropdown-item" asp-area="Client" asp-controller="ClientOrder" asp-action="Index">My Orders</a></li>
+                    <li><a class="dropdown-item" asp-area="Client" asp-controller="ClientReview" asp-action="Index">My Reviews</a></li>
+                    <li>
+                        <a class="dropdown-item" asp-area="Client" asp-controller="Message" asp-action="Index">
+                            <i class="fas fa-envelope me-2"></i>Messages
+                            @{
+                                var clientMsgCount = ViewBag.UnreadMessagesCount ?? 0;
+                            }
+                            @if (clientMsgCount > 0)
+                            {
+                                <span class="badge bg-danger float-end">@clientMsgCount</span>
+                            }
+                        </a>
+                    </li>
+                    <li><a class="dropdown-item" asp-area="Client" asp-controller="Client" asp-action="Profile">Edit Profile</a></li>
+                }
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <form method="POST" asp-controller="Auth" asp-action="Logout" id="navLogoutForm">
+                        @Html.AntiForgeryToken()
+                        <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('navLogoutForm').submit();">
+                            Logout
+                        </a>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    }
+    else
+    {
+        <a asp-controller="Auth" asp-action="Login" class="btn btn-outline-primary me-2">Login</a>
+        <a asp-controller="Auth" asp-action="Register" class="btn btn-primary">Sign Up</a>
+    }
+</div>

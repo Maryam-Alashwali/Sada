@@ -1,0 +1,195 @@
+﻿@model Sada.ViewModels.Client.OrderDetailViewModel
+@{
+    ViewData["Title"] = $"Invoice #{Model.OrderId}";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <style>
+        .profile-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .invoice-header {
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .billing-info {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+            .invoice-table th {
+                background: rgb(142, 142, 142);
+                color: white;
+                padding: 1rem;
+                text-align: left;
+                font-weight: 600;
+            }
+
+            .invoice-table td {
+                padding: 1rem;
+                border-bottom: 1px solid #e9ecef;
+            }
+
+            .invoice-table tfoot td {
+                border-bottom: none;
+                padding: 0.75rem 1rem;
+            }
+
+        .total-row {
+            background: #e8f5e8;
+            font-size: 1.1rem;
+        }
+
+            .total-row td {
+                border-top: 2px solid #2c5530;
+                font-weight: 700;
+            }
+
+        @@media print {
+            .btn {
+                display: none !important;
+            }
+
+            .profile-card {
+                box-shadow: none !important;
+                border: 1px solid #ddd !important;
+            }
+        }
+    </style>
+}
+
+<div class="container my-4">
+    <!-- Invoice Header -->
+    <div class="profile-card mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="h2 mb-2">Invoice #@Model.OrderId</h1>
+                <p class="text-muted mb-0">
+                    @string.Join(", ", Model.Services.Select(s => s.ServiceName))
+                </p>
+            </div>
+
+            <div class="col-md-4 text-md-end">
+                <div class="d-flex gap-2 justify-content-md-end">
+                    <a asp-area="Client" asp-controller="ClientOrder" asp-action="Index" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-left me-2"></i> Back to Orders
+                    </a>
+                    <button onclick="window.print()" class="btn btn-primary">
+                        <i class="fas fa-print me-2"></i> Print
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Invoice Content -->
+    <div class="profile-card">
+        <div class="invoice-header mb-4">
+            <div class="row">
+                <div class="col-md-6">
+                    <h4>Sada Tailoring Platform</h4>
+                    <p class="mb-0">Professional Tailoring Services</p>
+                    <p class="mb-0">support@sada.com</p>
+                    <p class="mb-0">+966 123 456 789</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <h4>INVOICE</h4>
+                    <p class="mb-0"><strong>Invoice #:</strong> INV-@Model.OrderId</p>
+                    <p class="mb-0"><strong>Date:</strong> @Model.DateCreated?.ToString("MMMM dd, yyyy")</p>
+                    <p class="mb-0"><strong>Due Date:</strong> @Model.DateCreated?.AddDays(7).ToString("MMMM dd, yyyy")</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h5>Bill To:</h5>
+                <div class="billing-info">
+                    <p class="mb-1"><strong>Client</strong></p>
+                    <p class="mb-1">@Model.OrderAddress</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h5>Tailor:</h5>
+                <div class="billing-info">
+                    <p class="mb-1"><strong>@Model.TailorName</strong></p>
+                    <p class="mb-0">@Model.TailorPhone</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Services Table -->
+        <div class="table-responsive mb-4">
+            <table class="invoice-table">
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th>Price</th>
+                        <th>Qty</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var service in Model.Services)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@service.ServiceName</strong>
+                            </td>
+                            <td>@service.Price?.ToString("N2") SR</td>
+                            <td>1</td>
+                            <td>@service.Price?.ToString("N2") SR</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" class="text-end"><strong>Subtotal:</strong></td>
+                        <td><strong>@Model.TotalPrice?.ToString("N2") SR</strong></td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="text-end">Platform Commission (10%):</td>
+                        <td>@Model.PlatformCommission?.ToString("N2") SR</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="text-end">VAT (15%):</td>
+                        <td>@((Model.TotalPrice * 0.15m)?.ToString("N2")) SR</td>
+                    </tr>
+                    <tr class="total-row">
+                        <td colspan="3" class="text-end"><strong>Total Amount:</strong></td>
+                        <td><strong>@((Model.TotalPrice * 1.15m)?.ToString("N2")) SR</strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        @if (Model.Payment != null)
+        {
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Payment Details</h5>
+                    <div class="billing-info">
+                        <p class="mb-1"><strong>Payment Method:</strong> @Model.Payment.PaymentMethod</p>
+                        <p class="mb-1"><strong>Transaction ID:</strong> @Model.Payment.PaymentTransactionId</p>
+                        <p class="mb-1"><strong>Payment Date:</strong> @Model.Payment.PaymentDate?.ToString("MMMM dd, yyyy")</p>
+                        <p class="mb-0"><strong>Status:</strong> <span class="text-success">@Model.Payment.PaymentStatus</span></p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

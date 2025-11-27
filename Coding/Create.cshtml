@@ -1,0 +1,714 @@
+﻿@model Sada.ViewModels.Client.CreateOrderPageViewModel
+@{
+    ViewData["Title"] = "Create Order";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <style>
+        .order-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .order-header {
+            background: linear-gradient(135deg, #2c5530 0%, #1e3a21 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+
+        .tailor-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid white;
+            object-fit: cover;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1.5rem;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            position: relative;
+        }
+
+            .step::before {
+                content: '';
+                position: absolute;
+                top: 20px;
+                left: 50%;
+                width: 100%;
+                height: 2px;
+                background: rgba(255,255,255,0.3);
+                z-index: 0;
+            }
+
+            .step:first-child::before {
+                display: none;
+            }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step.active .step-number {
+            background: white;
+            color: #2c5530;
+        }
+
+        .step.completed .step-number {
+            background: #28a745;
+            color: white;
+        }
+
+        .step-label {
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .step-content {
+            display: none;
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+            .step-content.active {
+                display: block;
+            }
+
+        .service-card {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+            .service-card:hover {
+                border-color: #2c5530;
+                background: #f8f9fa;
+            }
+
+            .service-card.selected {
+                border-color: #2c5530;
+                background: #e8f5e8;
+            }
+
+        .service-price {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #2c5530;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title-new {
+            color: #2c5530;
+            margin-bottom: 1rem;
+        }
+
+        .time-slots-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .time-slot-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 15px 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            font-weight: 500;
+            min-height: 80px;
+        }
+
+            .time-slot-label.available {
+                border-color: #28a745;
+                background: linear-gradient(135deg, #e8f5e8, #d4edda);
+                color: #155724;
+            }
+
+                .time-slot-label.available:hover {
+                    border-color: #218838;
+                    background: linear-gradient(135deg, #d4edda, #c3e6cb);
+                }
+
+                .time-slot-label.available.selected {
+                    border-color: #155724;
+                    background: linear-gradient(135deg, #155724, #28a745);
+                    color: white;
+                    transform: scale(1.05);
+                }
+
+            .time-slot-label.unavailable {
+                border-color: #dc3545;
+                background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+                color: #721c24;
+                cursor: not-allowed;
+                opacity: 0.7;
+            }
+
+        .measurement-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+            .measurement-table th,
+            .measurement-table td {
+                padding: 0.75rem;
+                border: 1px solid #e9ecef;
+            }
+
+            .measurement-table th {
+                background: #f8f9fa;
+                font-weight: 600;
+            }
+
+        .order-summary {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 2px solid #2c5530;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .summary-total {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #2c5530;
+            border-top: 2px solid #2c5530;
+            padding-top: 1rem;
+            margin-top: 0.5rem;
+        }
+    </style>
+}
+
+<div class="container">
+    <div class="order-container">
+        <!-- Order Header -->
+        <div class="order-header">
+            <div class="tailor-info">
+                <img src="@(Model.Tailor.TailorProfilePicture ?? "/images/logo.png")"
+                     alt="Tailor Avatar"
+                     class="tailor-avatar"
+                     onerror="this.src='/images/logo.png'">
+                <div>
+                    <h3 class="mb-1 text-white">@Model.Tailor.FullName</h3>
+                    <p class="mb-0">Professional Tailoring Services</p>
+                    <div class="rating text-warning">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            <i class="fas fa-star"></i>
+                        }
+                        <span class="text-white">5.0 (0 reviews)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step Indicator -->
+            <div class="step-indicator">
+                <div class="step active" data-step="1">
+                    <div class="step-number">1</div>
+                    <div class="step-label">Services</div>
+                </div>
+                <div class="step" data-step="2">
+                    <div class="step-number">2</div>
+                    <div class="step-label">Details</div>
+                </div>
+                <div class="step" data-step="3">
+                    <div class="step-number">3</div>
+                    <div class="step-label">Schedule</div>
+                </div>
+                <div class="step" data-step="4">
+                    <div class="step-number">4</div>
+                    <div class="step-label">Review</div>
+                </div>
+            </div>
+        </div>
+
+        <form asp-area="Client" asp-controller="ClientOrder" asp-action="Store" method="post" enctype="multipart/form-data" id="orderForm">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="TailorId" value="@Model.Tailor.TailorId">
+
+            <!-- Step 1: Service Selection -->
+            <div class="step-content active" id="step-1">
+                <h3 class="section-title-new">Select Services</h3>
+                <p class="text-muted mb-4">Choose one or more services you'd like to order</p>
+
+                <div class="form-section">
+                    <h5>Available Services</h5>
+                    <div class="service-options">
+                        @foreach (var service in Model.Services)
+                        {
+                            <div class="service-card" data-service="@service.ServiceId"
+                                 data-price="@service.BasePrice"
+                                 data-name="@service.ServiceName">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="flex-grow-1">
+                                        <div class="form-check">
+                                            <input class="form-check-input service-checkbox"
+                                                   type="checkbox"
+                                                   name="ServiceIds"
+                                                   value="@service.ServiceId"
+                                                   id="service_@service.ServiceId">
+                                            <label class="form-check-label" for="service_@service.ServiceId">
+                                                <h6 class="mb-1">@service.ServiceName</h6>
+                                                <p class="mb-0 text-muted">@service.ServiceDescription</p>
+                                                <small class="text-primary">Duration: @service.Duration days</small>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="service-price">@service.BasePrice?.ToString("N2") SR</div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Selected Services Summary -->
+                    <div class="selected-services-summary mt-4" id="selectedServicesSummary" style="display: none;">
+                        <h6>Selected Services:</h6>
+                        <div id="selectedServicesList" class="mb-3"></div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <strong>Subtotal:</strong>
+                            <span id="servicesSubtotal">0.00 SR</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-outline-primary" type="button" disabled>Previous</button>
+                    <button class="btn btn-primary" type="button" onclick="nextStep(2)">Next: Service Details</button>
+                </div>
+            </div>
+
+            <!-- Step 2: Service Details -->
+            <div class="step-content" id="step-2">
+                <h3 class="section-title-new">Service Details</h3>
+
+                <div class="form-section">
+                    <h5>Service Method</h5>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="radio" name="ServiceType" id="pickupDelivery" value="pickup" checked>
+                        <label class="form-check-label" for="pickupDelivery">
+                            <strong>Pickup & Delivery</strong> - We'll pick up and deliver your items
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="ServiceType" id="homeVisit" value="home_visit">
+                        <label class="form-check-label" for="homeVisit">
+                            <strong>Home Visit</strong> - The tailor will visit your location
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h5>Delivery Address</h5>
+                    <div class="mb-3">
+                        <label for="OrderAddress" class="form-label">Full Address</label>
+                        <textarea class="form-control" id="OrderAddress" name="OrderAddress" rows="3"
+                                  placeholder="Enter your complete address" required></textarea>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h5>Additional Details</h5>
+                    <div class="mb-3">
+                        <label for="ClientNotes" class="form-label">Special Instructions</label>
+                        <textarea class="form-control" id="ClientNotes" name="ClientNotes" rows="4"
+                                  placeholder="Describe what you need done, any specific requirements, fabric details, etc."></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="ClientUploadedImages" class="form-label">Upload Reference Images</label>
+                        <input type="file" class="form-control" id="ClientUploadedImages" name="ClientUploadedImages"
+                               accept="image/*" multiple>
+                        <small class="text-muted">You can upload multiple images (optional)</small>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-outline-primary" type="button" onclick="prevStep(1)">Previous</button>
+                    <button class="btn btn-primary" type="button" onclick="nextStep(3)">Next: Scheduling</button>
+                </div>
+            </div>
+
+            <!-- Continue in Part 2... -->
+            <!-- Step 3: Scheduling -->
+            <div class="step-content" id="step-3">
+                <h3 class="section-title-new">Schedule Your Service</h3>
+
+                <div class="form-section">
+                    <h5>Select Date & Time</h5>
+                    <p class="text-muted">Choose an available time slot for your service.</p>
+
+                    <!-- Date Selection -->
+                    <div class="mb-4" id="pickupDateField">
+                        <label for="ScheduledPick" class="form-label">Select Date for Pickup</label>
+                        <input type="date" class="form-control" id="ScheduledPick" name="ScheduledPick"
+                               min="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")">
+                    </div>
+
+                    <div class="mb-4" id="visitDateField" style="display: none;">
+                        <label for="ScheduledVisitDate" class="form-label">Select Date for Home Visit</label>
+                        <input type="date" class="form-control" id="ScheduledVisitDate" name="ScheduledVisitDate"
+                               min="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")">
+                    </div>
+
+                    <!-- Time Slots Section -->
+                    <div id="timeSlotsSection" style="display: none;">
+                        <label class="form-label mb-3">Available Time Slots</label>
+                        <div class="time-slots-container" id="timeSlotsContainer">
+                            <!-- Time slots will be loaded here dynamically -->
+                        </div>
+                        <input type="hidden" name="SelectedTimeSlot" id="SelectedTimeSlot">
+                    </div>
+
+                    <!-- Loading State -->
+                    <div id="loadingSlots" class="text-center py-4" style="display: none;">
+                        <div class="spinner-border text-primary mb-2" role="status"></div>
+                        <p class="text-muted mb-0">Loading available time slots...</p>
+                    </div>
+
+                    <!-- No Slots Available -->
+                    <div id="noSlotsAvailable" class="alert alert-warning text-center" style="display: none;">
+                        <i class="fas fa-calendar-times me-2"></i>
+                        <span>No available time slots for the selected date.</span>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h5>Measurements</h5>
+                    <p class="text-muted">If you have existing measurements, you can enter them below.</p>
+
+                    <div class="table-responsive">
+                        <table class="measurement-table">
+                            <thead>
+                                <tr>
+                                    <th>Measurement</th>
+                                    <th>Value (cm)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Chest</td>
+                                    <td>
+                                        <input type="number" class="form-control form-control-sm" name="MeasurementChest"
+                                               value="@Model.Measurements?.Chest" step="0.1" placeholder="--" min="0">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Waist</td>
+                                    <td>
+                                        <input type="number" class="form-control form-control-sm" name="MeasurementWaist"
+                                               value="@Model.Measurements?.Waist" step="0.1" placeholder="--" min="0">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Hips</td>
+                                    <td>
+                                        <input type="number" class="form-control form-control-sm" name="MeasurementHips"
+                                               value="@Model.Measurements?.Hips" step="0.1" placeholder="--" min="0">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Length</td>
+                                    <td>
+                                        <input type="number" class="form-control form-control-sm" name="MeasurementLength"
+                                               value="@Model.Measurements?.Length" step="0.1" placeholder="--" min="0">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Sleeve Length</td>
+                                    <td>
+                                        <input type="number" class="form-control form-control-sm" name="MeasurementSleeveLength"
+                                               value="@Model.Measurements?.SleeveLength" step="0.1" placeholder="--" min="0">
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-outline-primary" type="button" onclick="prevStep(2)">Previous</button>
+                    <button class="btn btn-primary" type="button" onclick="nextStep(4)">Next: Review Order</button>
+                </div>
+            </div>
+
+            <!-- Step 4: Review Order -->
+            <div class="step-content" id="step-4">
+                <h3 class="section-title-new">Review Your Order</h3>
+
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="form-section">
+                            <h5>Order Summary</h5>
+                            <div class="order-details">
+                                <p><strong>Tailor:</strong> @Model.Tailor.FullName</p>
+                                <p><strong>Services:</strong> <span id="reviewServices">No services selected</span></p>
+                                <p><strong>Method:</strong> <span id="reviewMethod">Pickup & Delivery</span></p>
+                                <p><strong>Address:</strong> <span id="reviewAddress">Not provided</span></p>
+                                <p><strong>Scheduled Date:</strong> <span id="reviewDate">Not selected</span></p>
+                                <p><strong>Selected Time:</strong> <span id="reviewTime">Not selected</span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="order-summary">
+                            <h5>Price Summary</h5>
+                            <div id="priceSummary">
+                                <div class="summary-item">
+                                    <span>Services Subtotal</span>
+                                    <span id="reviewSubtotal">0.00 SR</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span>Platform Fee (10%)</span>
+                                    <span id="reviewPlatformFee">0.00 SR</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span>VAT (15%)</span>
+                                    <span id="reviewVAT">0.00 SR</span>
+                                </div>
+                                <div class="summary-item summary-total">
+                                    <span>Total</span>
+                                    <span id="reviewTotal">0.00 SR</span>
+                                </div>
+                            </div>
+
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-paper-plane me-2"></i> Proceed to Payment
+                                </button>
+                                <p class="text-center mt-2 small text-muted">You'll complete payment on the next page</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-outline-primary" type="button" onclick="prevStep(3)">Previous</button>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        let selectedServices = [];
+        let selectedServicesData = {};
+        let selectedTimeSlot = null;
+
+        // Step Navigation
+        function nextStep(step) {
+            if (!validateStep(step - 1)) {
+                return;
+            }
+
+            document.querySelectorAll('.step-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            document.getElementById(`step-${step}`).classList.add('active');
+
+            document.querySelectorAll('.step').forEach(stepEl => {
+                stepEl.classList.remove('active', 'completed');
+                const stepNumber = parseInt(stepEl.getAttribute('data-step'));
+                if (stepNumber < step) {
+                    stepEl.classList.add('completed');
+                } else if (stepNumber === step) {
+                    stepEl.classList.add('active');
+                }
+            });
+
+            updateReviewSection();
+        }
+
+        function prevStep(step) {
+            nextStep(step);
+        }
+
+        // Service Selection
+        document.querySelectorAll('.service-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const serviceId = this.value;
+                const serviceCard = this.closest('.service-card');
+                const serviceData = {
+                    id: serviceId,
+                    name: serviceCard.getAttribute('data-name'),
+                    price: parseFloat(serviceCard.getAttribute('data-price'))
+                };
+
+                if (this.checked) {
+                    selectedServices.push(serviceId);
+                    selectedServicesData[serviceId] = serviceData;
+                    serviceCard.classList.add('selected');
+                } else {
+                    selectedServices = selectedServices.filter(id => id !== serviceId);
+                    delete selectedServicesData[serviceId];
+                    serviceCard.classList.remove('selected');
+                }
+
+                updateSelectedServicesSummary();
+            });
+        });
+
+        function updateSelectedServicesSummary() {
+            const summary = document.getElementById('selectedServicesSummary');
+            const list = document.getElementById('selectedServicesList');
+            const subtotalElement = document.getElementById('servicesSubtotal');
+
+            if (selectedServices.length > 0) {
+                summary.style.display = 'block';
+                list.innerHTML = '';
+
+                let subtotal = 0;
+                Object.values(selectedServicesData).forEach(service => {
+                    subtotal += service.price;
+                    const serviceElement = document.createElement('div');
+                    serviceElement.innerHTML = `
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>${service.name}</span>
+                            <span>${service.price.toFixed(2)} SR</span>
+                        </div>
+                    `;
+                    list.appendChild(serviceElement);
+                });
+
+                subtotalElement.textContent = subtotal.toFixed(2) + ' SR';
+            } else {
+                summary.style.display = 'none';
+            }
+        }
+
+        // Form Validation
+        function validateStep(step) {
+            switch(step) {
+                case 1:
+                    if (selectedServices.length === 0) {
+                        alert('Please select at least one service before proceeding.');
+                        return false;
+                    }
+                    break;
+                case 2:
+                    const address = document.getElementById('OrderAddress').value.trim();
+                    if (!address) {
+                        alert('Please enter your delivery address.');
+                        return false;
+                    }
+                    break;
+                case 3:
+                    const serviceType = document.querySelector('input[name="ServiceType"]:checked').value;
+                    const dateField = serviceType === 'pickup' ? 'ScheduledPick' : 'ScheduledVisitDate';
+                    const date = document.getElementById(dateField).value;
+                    if (!date) {
+                        alert('Please select a date for your service.');
+                        return false;
+                    }
+                    break;
+            }
+            return true;
+        }
+
+        // Update Review Section
+        function updateReviewSection() {
+            const servicesList = document.getElementById('reviewServices');
+            if (selectedServices.length > 0) {
+                let servicesText = Object.values(selectedServicesData).map(s => s.name).join(', ');
+                servicesList.textContent = servicesText;
+
+                let subtotal = Object.values(selectedServicesData).reduce((sum, s) => sum + s.price, 0);
+                const platformFee = subtotal * 0.10;
+                const vat = (subtotal + platformFee) * 0.15;
+                const total = subtotal + platformFee + vat;
+
+                document.getElementById('reviewSubtotal').textContent = subtotal.toFixed(2) + ' SR';
+                document.getElementById('reviewPlatformFee').textContent = platformFee.toFixed(2) + ' SR';
+                document.getElementById('reviewVAT').textContent = vat.toFixed(2) + ' SR';
+                document.getElementById('reviewTotal').textContent = total.toFixed(2) + ' SR';
+            }
+
+            const selectedMethod = document.querySelector('input[name="ServiceType"]:checked');
+            if (selectedMethod) {
+                const methodText = selectedMethod.value === 'pickup' ? 'Pickup & Delivery' : 'Home Visit';
+                document.getElementById('reviewMethod').textContent = methodText;
+            }
+
+            const address = document.getElementById('OrderAddress').value;
+            if (address) {
+                document.getElementById('reviewAddress').textContent = address;
+            }
+
+            if (selectedTimeSlot) {
+                document.getElementById('reviewTime').textContent = selectedTimeSlot.display;
+            }
+        }
+
+        // Service Type Change
+        document.querySelectorAll('input[name="ServiceType"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const pickupDate = document.getElementById('pickupDateField');
+                const visitDate = document.getElementById('visitDateField');
+                if (this.value === 'pickup') {
+                    pickupDate.style.display = 'block';
+                    visitDate.style.display = 'none';
+                } else {
+                    pickupDate.style.display = 'none';
+                    visitDate.style.display = 'block';
+                }
+            });
+        });
+    </script>
+}

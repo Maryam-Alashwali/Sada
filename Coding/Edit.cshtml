@@ -1,0 +1,264 @@
+﻿@model Sada.ViewModels.Tailor.TailorProfileViewModel
+@{
+    ViewData["Title"] = "Edit Profile - Tailor";
+    Layout = "_TailorLayout";
+}
+
+<div class="container py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">Edit Profile</h2>
+            <p class="text-muted mb-0">Update your profile information</p>
+        </div>
+        <a asp-area="Tailor" asp-controller="Profile" asp-action="Show" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-1"></i> Back to Profile
+        </a>
+    </div>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            Please fix the following errors:
+            <ul class="mb-0 mt-2">
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <li>@error.ErrorMessage</li>
+                }
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <form asp-area="Tailor" asp-controller="Profile" asp-action="Update" method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+
+        <div class="row">
+            <!-- Personal Information -->
+            <div class="col-lg-8">
+                <div class="data-card mb-4">
+                    <h5 class="mb-3">Personal Information</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="TailorFirstName" class="form-label">
+                                    First Name <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="TailorFirstName" class="form-control" />
+                                <span asp-validation-for="TailorFirstName" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="TailorLastName" class="form-label">
+                                    Last Name <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="TailorLastName" class="form-control" />
+                                <span asp-validation-for="TailorLastName" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Email" class="form-label">
+                                    Email <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="Email" class="form-control" type="email" />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="TailorPhone" class="form-label">
+                                    Phone <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="TailorPhone" class="form-control" />
+                                <span asp-validation-for="TailorPhone" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label asp-for="TailorAddress" class="form-label">
+                                    Address <span class="text-danger">*</span>
+                                </label>
+                                <textarea asp-for="TailorAddress" class="form-control" rows="3"></textarea>
+                                <span asp-validation-for="TailorAddress" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Password Update -->
+                <div class="data-card">
+                    <h5 class="mb-3">Change Password</h5>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Leave password fields blank if you don't want to change your password.
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Password" class="form-label">New Password</label>
+                                <input asp-for="Password" class="form-control" type="password"
+                                       placeholder="Leave blank to keep current" />
+                                <span asp-validation-for="Password" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="ConfirmPassword" class="form-label">Confirm New Password</label>
+                                <input asp-for="ConfirmPassword" class="form-control" type="password"
+                                       placeholder="Confirm new password" />
+                                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Picture -->
+            <div class="col-lg-4">
+                <div class="data-card mb-4">
+                    <h5 class="mb-3">Profile Picture</h5>
+                    <div class="text-center mb-3">
+                        @if (!string.IsNullOrEmpty(Model.ExistingProfilePicture))
+                        {
+                            <img src="@Url.Content(Model.ExistingProfilePicture)"
+                                 class="profile-avatar-large mb-3"
+                                 alt="Current Profile Picture"
+                                 id="profilePicturePreview">
+                        }
+                        else
+                        {
+                            <div class="profile-avatar-placeholder mb-3" id="profilePicturePreview">
+                                <i class="fas fa-user fa-3x text-muted"></i>
+                            </div>
+                        }
+                    </div>
+                    <div class="mb-3">
+                        <input type="file" asp-for="ProfilePictureFile" class="form-control"
+                               id="profilePictureInput" accept="image/*">
+                        <div class="form-text">
+                            Recommended: Square image, max 2MB (JPG, PNG, GIF)
+                        </div>
+                        <span asp-validation-for="ProfilePictureFile" class="text-danger"></span>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.ExistingProfilePicture))
+                    {
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="RemoveProfilePicture" value="true" id="removeProfilePicture">
+                            <label class="form-check-label text-danger" for="removeProfilePicture">
+                                Remove current profile picture
+                            </label>
+                        </div>
+                    }
+                </div>
+
+                <!-- Save Changes -->
+                <div class="data-card">
+                    <h6 class="mb-3">Save Changes</h6>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i> Update Profile
+                        </button>
+                        <a asp-area="Tailor" asp-controller="Profile" asp-action="Show"
+                           class="btn btn-outline-secondary">
+                            Cancel
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const profilePictureInput = document.getElementById('profilePictureInput');
+            const profilePicturePreview = document.getElementById('profilePicturePreview');
+            const removeProfilePictureCheckbox = document.getElementById('removeProfilePicture');
+
+            // Profile picture preview
+            profilePictureInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        if (profilePicturePreview.tagName === 'IMG') {
+                            profilePicturePreview.src = e.target.result;
+                        } else {
+                            // Replace placeholder with image
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.className = 'profile-avatar-large mb-3';
+                            img.alt = 'Profile Picture Preview';
+                            img.id = 'profilePicturePreview';
+                            profilePicturePreview.parentNode.replaceChild(img, profilePicturePreview);
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Handle remove profile picture checkbox
+            if (removeProfilePictureCheckbox) {
+                removeProfilePictureCheckbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        profilePictureInput.disabled = true;
+                        if (profilePicturePreview.tagName === 'IMG') {
+                            const placeholder = document.createElement('div');
+                            placeholder.className = 'profile-avatar-placeholder mb-3';
+                            placeholder.id = 'profilePicturePreview';
+                            placeholder.innerHTML = '<i class="fas fa-user fa-3x text-muted"></i>';
+                            profilePicturePreview.parentNode.replaceChild(placeholder, profilePicturePreview);
+                        }
+                    } else {
+                        profilePictureInput.disabled = false;
+                    }
+                });
+            }
+        });
+    </script>
+}
+
+@section Styles {
+    <style>
+        .profile-avatar-large {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--light-teal);
+        }
+
+        .profile-avatar-placeholder {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: var(--light-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            border: 4px solid var(--light-teal);
+        }
+
+        .data-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        :root {
+            --light-blue: #DCE3F1;
+            --light-teal: #BAC6C6;
+            --lavender: #9C82A4;
+            --purple: #6B527D;
+            --dark-blue: #3E3A5D;
+        }
+    </style>
+}

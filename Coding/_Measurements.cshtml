@@ -1,0 +1,76 @@
+﻿@model Sada.ViewModels.Client.MeasurementViewModel
+
+<!-- Measurement Modal -->
+<div class="modal fade" id="measurementModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    @(Model != null && Model.MeasurementId > 0 ? "Update Measurements" : "Add Measurements")
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="p-3 rounded mb-5 mt-3" style="background-color:#DDE5E0;">
+                    <small style="color:#6B4D38;">💡 For best results, have someone help you measure. Wear fitted clothing and stand straight.</small>
+                </div>
+                <form asp-area="Client"
+                      asp-controller="Client"
+                      asp-action="@(Model != null && Model.MeasurementId > 0 ? "UpdateMeasurement" : "StoreMeasurement")"
+                      method="post">
+                    <input type="hidden" name="__RequestVerificationToken" value="@ViewContext.HttpContext.Request.Cookies[".AspNetCore.Antiforgery"]" />
+
+                    @if (Model != null && Model.MeasurementId > 0)
+                    {
+                        <input type="hidden" asp-for="MeasurementId" />
+                    }
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="Chest" class="form-label"></label>
+                            <input asp-for="Chest" class="form-control" placeholder="Enter chest measurement" />
+                            <span asp-validation-for="Chest" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Waist" class="form-label"></label>
+                            <input asp-for="Waist" class="form-control" placeholder="Enter waist measurement" />
+                            <span asp-validation-for="Waist" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Hips" class="form-label"></label>
+                            <input asp-for="Hips" class="form-control" placeholder="Enter hips measurement" />
+                            <span asp-validation-for="Hips" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Length" class="form-label"></label>
+                            <input asp-for="Length" class="form-control" placeholder="Enter length measurement" />
+                            <span asp-validation-for="Length" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="SleeveLength" class="form-label"></label>
+                            <input asp-for="SleeveLength" class="form-control" placeholder="Enter sleeve length" />
+                            <span asp-validation-for="SleeveLength" class="text-danger"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="OtherNotes" class="form-label"></label>
+                            <textarea asp-for="OtherNotes" class="form-control" rows="3"
+                                      placeholder="Any additional measurement notes..."></textarea>
+                            <span asp-validation-for="OtherNotes" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 text-end">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">
+                            @(Model != null && Model.MeasurementId > 0 ? "Update" : "Save") Measurements
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

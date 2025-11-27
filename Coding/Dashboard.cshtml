@@ -1,0 +1,429 @@
+﻿@model Sada.ViewModels.Tailor.TailorDashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard - Tailor";
+    Layout = "_TailorLayout";
+}
+
+<div class="container py-4">
+    <!-- Stats Grid -->
+    <div class="row g-4 mb-5">
+        <div class="col-xl-3 col-md-6">
+            <div class="stats-card">
+                <div class="stats-icon">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <div class="stats-content">
+                    <h3 class="stats-number">@Model.Stats.NewRequests</h3>
+                    <p class="stats-label">New Requests</p>
+                </div>
+                <div class="stats-trend">
+                    <i class="fas fa-arrow-up"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="stats-card">
+                <div class="stats-icon">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <div class="stats-content">
+                    <h3 class="stats-number">@Model.Stats.ActiveOrders</h3>
+                    <p class="stats-label">Active Orders</p>
+                </div>
+                <div class="stats-trend">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="stats-card">
+                <div class="stats-icon">
+                    <i class="fas fa-wallet"></i>
+                </div>
+                <div class="stats-content">
+                    <h3 class="stats-number">@Model.Stats.TotalEarnings.ToString("N0") SR</h3>
+                    <p class="stats-label">Total Earnings</p>
+                </div>
+                <div class="stats-trend">
+                    <i class="fas fa-coins"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="stats-card">
+                <div class="stats-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="stats-content">
+                    <h3 class="stats-number">@Model.Stats.AverageRating.ToString("F1")/5</h3>
+                    <p class="stats-label">Average Rating</p>
+                </div>
+                <div class="stats-trend">
+                    <i class="fas fa-star-half-alt"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="row g-4">
+        <div class="col-xl-8">
+            <div class="row">
+                <div class="col-12 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Quick Actions</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-3 col-6">
+                                    <a asp-area="Tailor" asp-controller="Order" asp-action="Index" class="quick-action-card">
+                                        <div class="action-icon bg-primary">
+                                            <i class="fas fa-shopping-bag"></i>
+                                        </div>
+                                        <span>Manage Orders</span>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-6">
+                                    <a asp-area="Tailor" asp-controller="Service" asp-action="Index" class="quick-action-card">
+                                        <div class="action-icon bg-success">
+                                            <i class="fas fa-concierge-bell"></i>
+                                        </div>
+                                        <span>My Services</span>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-6">
+                                    <a asp-area="Tailor" asp-controller="Availability" asp-action="Index" class="quick-action-card">
+                                        <div class="action-icon bg-warning">
+                                            <i class="fas fa-calendar"></i>
+                                        </div>
+                                        <span>Availability</span>
+                                    </a>
+                                </div>
+                                <div class="col-md-3 col-6">
+                                    <a asp-area="Tailor" asp-controller="Profile" asp-action="Show" class="quick-action-card">
+                                        <div class="action-icon bg-info">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <span>Profile</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">Recent Orders</h5>
+                            <a asp-area="Tailor" asp-controller="Order" asp-action="Index" class="btn btn-sm btn-outline-primary">
+                                View All <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            @if (Model.RecentOrders?.Any() == true)
+                            {
+                                @foreach (var order in Model.RecentOrders)
+                                {
+                                    <div class="order-item @(!Model.RecentOrders.Last().Equals(order) ? "border-bottom" : "") pb-3 mb-3">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-6">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="order-avatar bg-light rounded-circle d-flex align-items-center justify-content-center me-3">
+                                                        <i class="fas fa-shopping-bag text-primary"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="mb-1">#ORD-@order.OrderId.ToString().PadLeft(4, '0')</h6>
+                                                        <p class="text-muted small mb-0">@order.ClientName</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <span class="badge bg-@(order.OrderStatus == "requested" ? "warning" : (order.OrderStatus == "completed" ? "success" : "primary"))">
+                                                    @order.OrderStatus?.Replace("_", " ")
+                                                </span>
+                                            </div>
+                                            <div class="col-md-3 text-end">
+                                                <strong class="text-primary">@order.TotalPrice?.ToString("F2") SR</strong>
+                                                <p class="text-muted small mb-0">
+                                                    @if (order.DateCreated.HasValue)
+                                                    {
+                                                        var timeAgo = DateTime.Now - order.DateCreated.Value;
+                                                        if (timeAgo.TotalDays < 1)
+                                                        {
+                                                            <text>@((int)timeAgo.TotalHours) hours ago</text>
+                                                        }
+                                                        else if (timeAgo.TotalDays < 30)
+                                                        {
+                                                            <text>@((int)timeAgo.TotalDays) days ago</text>
+                                                        }
+                                                        else
+                                                        {
+                                                            @order.DateCreated.Value.ToString("MMM dd, yyyy")
+                                                        }
+                                                    }
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="text-center py-4">
+                                    <i class="fas fa-shopping-bag fa-3x text-muted mb-3"></i>
+                                    <h5>No Orders Yet</h5>
+                                    <p class="text-muted">You don't have any orders at the moment.</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Quick Stats</h5>
+                </div>
+                <div class="card-body">
+                    <div class="quick-stats">
+                        <div class="stat-item d-flex justify-content-between align-items-center py-2">
+                            <span class="stat-label">
+                                <i class="fas fa-concierge-bell text-primary me-2"></i>
+                                Total Services
+                            </span>
+                            <span class="stat-value">@Model.Stats.TotalServices</span>
+                        </div>
+                        <div class="stat-item d-flex justify-content-between align-items-center py-2">
+                            <span class="stat-label">
+                                <i class="fas fa-comments text-info me-2"></i>
+                                Unread Messages
+                            </span>
+                            <span class="stat-value">@Model.Stats.UnreadMessages</span>
+                        </div>
+                        <div class="stat-item d-flex justify-content-between align-items-center py-2">
+                            <span class="stat-label">
+                                <i class="fas fa-calendar-check text-success me-2"></i>
+                                Completed Orders
+                            </span>
+                            <span class="stat-value">@Model.Stats.CompletedOrders</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Recent Reviews</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.RecentReviews?.Any() == true)
+                    {
+                        @foreach (var review in Model.RecentReviews)
+                        {
+                            <div class="review-item @(!Model.RecentReviews.Last().Equals(review) ? "border-bottom" : "") pb-3 mb-3">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h6 class="mb-1">@review.ClientName</h6>
+                                        <div class="rating">
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                <i class="fas fa-star @(i <= (review.Rating ?? 0) ? "text-warning" : "text-muted")"></i>
+                                            }
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">
+                                        @if (review.ReviewCreatedAt.HasValue)
+                                        {
+                                            var timeAgo = DateTime.Now - review.ReviewCreatedAt.Value;
+                                            if (timeAgo.TotalDays < 1)
+                                            {
+                                                <text>@((int)timeAgo.TotalHours) hours ago</text>
+                                            }
+                                            else
+                                            {
+                                                <text>@((int)timeAgo.TotalDays) days ago</text>
+                                            }
+                                        }
+                                    </small>
+                                </div>
+                                <p class="text-muted small mb-0">@(review.Comment?.Length > 80 ? review.Comment.Substring(0, 80) + "..." : review.Comment)</p>
+                                @if (!string.IsNullOrEmpty(review.ServiceName))
+                                {
+                                    <small class="text-primary">Service: @review.ServiceName</small>
+                                }
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center py-3">
+                            <i class="fas fa-star fa-2x text-muted mb-2"></i>
+                            <p class="text-muted mb-0">No reviews yet</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        :root {
+            --light-blue: #DCE3F1;
+            --light-teal: #BAC6C6;
+            --lavender: #9C82A4;
+            --purple: #6B527D;
+            --dark-blue: #3E3A5D;
+        }
+
+        .stats-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+            .stats-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 6px 18px rgba(62, 58, 93, 0.2);
+            }
+
+        .stats-icon {
+            font-size: 2.5rem;
+            margin-right: 1rem;
+            color: var(--lavender);
+            opacity: 0.9;
+        }
+
+        .stats-content {
+            flex: 1;
+        }
+
+        .stats-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: var(--dark-blue);
+        }
+
+        .stats-label {
+            font-size: 0.9rem;
+            color: var(--lavender);
+            margin-bottom: 0;
+        }
+
+        .stats-trend {
+            font-size: 1.5rem;
+            color: var(--lavender);
+        }
+
+        .card {
+            border: none;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+            border-radius: 15px;
+        }
+
+        .card-header {
+            background: white;
+            border-bottom: 1px solid var(--light-teal);
+            padding: 1.25rem 1.5rem;
+            border-radius: 15px 15px 0 0 !important;
+            color: var(--dark-blue);
+        }
+
+        .order-avatar {
+            width: 40px;
+            height: 40px;
+        }
+
+        .order-item:hover {
+            background: var(--light-blue);
+            border-radius: 10px;
+            padding: 0.5rem;
+            margin: -0.5rem;
+        }
+
+        .quick-stats .stat-item {
+            border-bottom: 1px solid var(--light-teal);
+        }
+
+            .quick-stats .stat-item:last-child {
+                border-bottom: none;
+            }
+
+        .stat-label {
+            font-weight: 500;
+            color: var(--dark-blue);
+        }
+
+        .stat-value {
+            font-weight: bold;
+            color: var(--purple);
+        }
+
+        .rating {
+            font-size: 0.8rem;
+        }
+
+        .review-item:hover {
+            background: var(--light-blue);
+            border-radius: 10px;
+            padding: 0.75rem;
+            margin: -0.75rem;
+        }
+
+        .quick-action-card {
+            display: block;
+            text-align: center;
+            padding: 1.5rem 1rem;
+            border-radius: 10px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            background-color: #fff;
+        }
+
+            .quick-action-card:hover {
+                background: var(--light-blue) !important;
+                border-color: var(--purple) !important;
+                transform: translateY(-2px) !important;
+            }
+
+        .action-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .bg-primary {
+            background: linear-gradient(135deg, var(--purple), var(--lavender)) !important;
+        }
+
+        .bg-success {
+            background: linear-gradient(135deg, #28a745, #20c997) !important;
+        }
+
+        .bg-warning {
+            background: linear-gradient(135deg, #ffc107, #fd7e14) !important;
+        }
+
+        .bg-info {
+            background: linear-gradient(135deg, #17a2b8, #6f42c1) !important;
+        }
+    </style>
+}

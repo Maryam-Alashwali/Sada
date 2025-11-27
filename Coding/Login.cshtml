@@ -1,0 +1,78 @@
+﻿@* Views/Auth/Login.cshtml *@
+@model Sada.ViewModels.Auth.LoginViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Login";
+}
+
+<!-- Login Section -->
+<section class="login-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="login-form">
+                    <h3 class="login-title">Login to Your Account</h3>
+
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                                {
+                                    <li>@error.ErrorMessage</li>
+                                }
+                            </ul>
+                        </div>
+                    }
+
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success">
+                            @TempData["Success"]
+                        </div>
+                    }
+
+                    <form method="POST" asp-controller="Auth" asp-action="Login">
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label">Email Address</label>
+                            <input asp-for="Email" class="form-control"
+                                   placeholder="Enter your email"
+                                   autocomplete="email"
+                                   autofocus>
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Password" class="form-label">Password</label>
+                            <input asp-for="Password" class="form-control"
+                                   placeholder="Enter your password"
+                                   autocomplete="current-password">
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input asp-for="RememberMe" class="form-check-input">
+                            <label asp-for="RememberMe" class="form-check-label">Remember me</label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 py-2">Login</button>
+                    </form>
+
+                    <div class="forgot-password text-center mt-3">
+                        <a href="#">Forgot your password?</a>
+                    </div>
+
+                    <div class="signup-link text-center mt-3">
+                        Don't have an account? <a asp-controller="Auth" asp-action="Register">Sign up here</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

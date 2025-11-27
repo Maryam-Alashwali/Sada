@@ -1,0 +1,46 @@
+﻿<div class="modal fade" id="addAvailabilityModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Availability Slot</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-area="Tailor" asp-controller="Availability" asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="dayOfWeek" class="form-label">Day of Week</label>
+                        <select class="form-select" name="DayOfWeek" required>
+                            <option value="">Select a day</option>
+                            <option value="Monday">Monday</option>
+                            <option value="Tuesday">Tuesday</option>
+                            <option value="Wednesday">Wednesday</option>
+                            <option value="Thursday">Thursday</option>
+                            <option value="Friday">Friday</option>
+                            <option value="Saturday">Saturday</option>
+                            <option value="Sunday">Sunday</option>
+                        </select>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="startTime" class="form-label">Start Time</label>
+                            <input type="time" class="form-control" name="StartTime" value="09:00" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="endTime" class="form-label">End Time</label>
+                            <input type="time" class="form-control" name="EndTime" value="17:00" required>
+                        </div>
+                    </div>
+                    <div class="form-check mt-3">
+                        <input class="form-check-input" type="checkbox" name="IsAvailable" value="true" checked>
+                        <label class="form-check-label">Available during this time</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Slot</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

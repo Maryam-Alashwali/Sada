@@ -1,0 +1,86 @@
+﻿@* Views/Shared/_TailorNavMenu.cshtml *@
+
+<!-- Right Sidebar Menu -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="sidebarMenu" aria-labelledby="sidebarMenuLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title fw-bold text-dark-blue" id="sidebarMenuLabel">
+            <i class="fas fa-user-scissors me-2"></i> Tailor Menu
+        </h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+
+    <div class="offcanvas-body p-0">
+        <ul class="list-group list-group-flush">
+            <a asp-area="Tailor" asp-controller="Dashboard" asp-action="Index"
+               class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" && ViewContext.RouteData.Values["area"]?.ToString() == "Tailor" ? "active" : "")">
+                <i class="fas fa-home me-2"></i> Dashboard
+            </a>
+
+            <a asp-area="Tailor" asp-controller="Order" asp-action="Index"
+               class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["controller"]?.ToString() == "Order" && ViewContext.RouteData.Values["area"]?.ToString() == "Tailor" ? "active" : "")">
+                <i class="fas fa-box me-2"></i> Orders
+                @{
+                    var newOrders = ViewBag.NewOrdersCount ?? 0;
+                }
+                @if (newOrders > 0)
+                {
+                    <span class="badge bg-primary float-end">@newOrders</span>
+                }
+            </a>
+
+            <a asp-area="Tailor" asp-controller="Service" asp-action="Index"
+               class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["controller"]?.ToString() == "Service" && ViewContext.RouteData.Values["area"]?.ToString() == "Tailor" ? "active" : "")">
+                <i class="fas fa-scissors me-2"></i> Services
+            </a>
+
+            <a asp-area="Tailor" asp-controller="Availability" asp-action="Index"
+               class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["controller"]?.ToString() == "Availability" && ViewContext.RouteData.Values["area"]?.ToString() == "Tailor" ? "active" : "")">
+                <i class="fas fa-clock me-2"></i> Availability
+            </a>
+
+            <a asp-area="Tailor" asp-controller="Message" asp-action="Index"
+               class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["controller"]?.ToString() == "Message" && ViewContext.RouteData.Values["area"]?.ToString() == "Tailor" ? "active" : "")">
+                <i class="fas fa-comments me-2"></i> Messages
+                @{
+                    var unreadMessages = ViewBag.UnreadMessagesCount ?? 0;
+                }
+                @if (unreadMessages > 0)
+                {
+                    <span class="badge bg-primary float-end">@unreadMessages</span>
+                }
+            </a>
+
+            <a asp-area="Tailor" asp-controller="Review" asp-action="Index"
+               class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["controller"]?.ToString() == "Review" && ViewContext.RouteData.Values["area"]?.ToString() == "Tailor" ? "active" : "")">
+                <i class="fas fa-star me-2"></i> Reviews
+            </a>
+
+            <a asp-area="Tailor" asp-controller="Notification" asp-action="Index"
+               class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["controller"]?.ToString() == "Notification" && ViewContext.RouteData.Values["area"]?.ToString() == "Tailor" ? "active" : "")">
+                <i class="fas fa-bell me-2"></i> Notifications
+                @{
+                    var unreadNotifications = ViewBag.UnreadNotificationsCount ?? 0;
+                }
+                @if (unreadNotifications > 0)
+                {
+                    <span class="badge bg-primary float-end">@unreadNotifications</span>
+                }
+            </a>
+
+            <a asp-area="Tailor" asp-controller="Profile" asp-action="Show"
+               class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["controller"]?.ToString() == "Profile" && ViewContext.RouteData.Values["area"]?.ToString() == "Tailor" ? "active" : "")">
+                <i class="fas fa-user me-2"></i> Profile
+            </a>
+
+            <a href="#" class="list-group-item list-group-item-action text-danger"
+               onclick="event.preventDefault(); document.getElementById('logoutForm').submit();">
+                <i class="fas fa-sign-out-alt me-2"></i> Logout
+            </a>
+        </ul>
+    </div>
+</div>
+
+<!-- Hidden Logout Form -->
+<form method="POST" asp-controller="Auth" asp-action="Logout" id="logoutForm" class="d-none">
+    @Html.AntiForgeryToken()
+</form>
