@@ -1,0 +1,238 @@
+﻿@* Views/Auth/Register.cshtml *@
+@model Sada.ViewModels.Auth.RegisterViewModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Register";
+}
+
+<section class="register-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="register-card">
+                    <div class="row g-0">
+                        <div class="col-lg-12">
+                            <div class="register-form">
+                                <div class="text-center mb-4">
+                                    <h2>Join the Sada Community</h2>
+                                    <p>Create an account to discover quality tailors or showcase your tailoring skills</p>
+                                </div>
+
+                                @if (!ViewData.ModelState.IsValid)
+                                {
+                                    <div class="alert alert-danger">
+                                        <ul class="mb-0">
+                                            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                                            {
+                                                <li>@error.ErrorMessage</li>
+                                            }
+                                        </ul>
+                                    </div>
+                                }
+
+                                <form method="POST" asp-controller="Auth" asp-action="Register" id="registerForm" enctype="multipart/form-data">
+                                    @Html.AntiForgeryToken()
+
+                                    <!-- Hidden role field -->
+                                    <input type="hidden" asp-for="Role" id="userRole" value="client">
+
+                                    <div class="user-type-selector mb-4">
+                                        <div class="user-type-option selected" data-type="client">
+                                            <i class="fas fa-user"></i>
+                                            <h5>Client</h5>
+                                            <p>Looking for tailoring services</p>
+                                        </div>
+                                        <div class="user-type-option" data-type="tailor">
+                                            <i class="fas fa-scissors"></i>
+                                            <h5>Tailor</h5>
+                                            <p>Offer your tailoring services</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label asp-for="FirstName" class="form-label">First Name *</label>
+                                                <input asp-for="FirstName" class="form-control"
+                                                       placeholder="Enter your first name">
+                                                <span asp-validation-for="FirstName" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label asp-for="LastName" class="form-label">Last Name *</label>
+                                                <input asp-for="LastName" class="form-control"
+                                                       placeholder="Enter your last name">
+                                                <span asp-validation-for="LastName" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="Email" class="form-label">Email Address *</label>
+                                        <input asp-for="Email" class="form-control"
+                                               placeholder="Enter your email">
+                                        <span asp-validation-for="Email" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="Phone" class="form-label">Phone Number *</label>
+                                        <input asp-for="Phone" type="tel" class="form-control"
+                                               placeholder="Enter your phone number">
+                                        <span asp-validation-for="Phone" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="Address" class="form-label">Address *</label>
+                                        <textarea asp-for="Address" class="form-control"
+                                                  placeholder="Enter your complete address"
+                                                  rows="3"></textarea>
+                                        <span asp-validation-for="Address" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="mb-3 tailor-only" style="display:none;">
+                                        <label asp-for="ProfilePicture" class="form-label">Logo Image</label>
+                                        <input asp-for="ProfilePicture" type="file" class="form-control"
+                                               accept="image/jpeg,image/png,image/jpg,image/gif">
+                                        <div class="form-text">
+                                            Upload a profile image (required for Tailors)
+                                        </div>
+                                        <span asp-validation-for="ProfilePicture" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label asp-for="Password" class="form-label">Password *</label>
+                                                <input asp-for="Password" class="form-control"
+                                                       placeholder="Create a password">
+                                                <div class="password-strength mt-2">
+                                                    <div class="password-strength-bar" id="passwordStrength"></div>
+                                                </div>
+                                                <span asp-validation-for="Password" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label asp-for="ConfirmPassword" class="form-label">Confirm Password *</label>
+                                                <input asp-for="ConfirmPassword" class="form-control"
+                                                       placeholder="Confirm your password">
+                                                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-text mb-3">
+                                        Password must be at least 6 characters long
+                                    </div>
+
+                                    <div class="mb-3 form-check">
+                                        <input asp-for="Terms" class="form-check-input">
+                                        <label asp-for="Terms" class="form-check-label">
+                                            I agree to the <a href="#" target="_blank">Terms of Service</a> and <a href="#" target="_blank">Privacy Policy</a> *
+                                        </label>
+                                        <span asp-validation-for="Terms" class="text-danger d-block"></span>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary w-100 py-2 btn-lg">
+                                        Create Account
+                                    </button>
+                                </form>
+
+                                <div class="login-link text-center mt-4">
+                                    <p class="mb-0">Already have an account? <a asp-controller="Auth" asp-action="Login">Login here</a></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // User type selection (Client / Tailor)
+        document.querySelectorAll('.user-type-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.user-type-option').forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+
+                const userType = this.getAttribute('data-type');
+                document.getElementById('userRole').value = userType;
+
+                // Toggle tailor-only fields
+                const tailorFields = document.querySelectorAll('.tailor-only');
+                tailorFields.forEach(field => {
+                    field.style.display = (userType === 'tailor') ? 'block' : 'none';
+                });
+            });
+        });
+
+        // Password strength indicator
+        document.getElementById('Password').addEventListener('input', function() {
+            const password = this.value;
+            const strengthBar = document.getElementById('passwordStrength');
+
+            // Reset classes
+            strengthBar.className = 'password-strength-bar';
+
+            if (password.length === 0) {
+                strengthBar.style.width = '0%';
+                return;
+            }
+
+            // Calculate strength
+            let strength = 0;
+
+            // Length check
+            if (password.length >= 8) strength += 25;
+
+            // Contains lowercase
+            if (/[a-z]/.test(password)) strength += 25;
+
+            // Contains uppercase
+            if (/[A-Z]/.test(password)) strength += 25;
+
+            // Contains numbers
+            if (/[0-9]/.test(password)) strength += 25;
+
+            // Update strength bar
+            strengthBar.style.width = strength + '%';
+
+            // Add appropriate class
+            if (strength <= 25) {
+                strengthBar.classList.add('password-weak');
+            } else if (strength <= 50) {
+                strengthBar.classList.add('password-medium');
+            } else if (strength <= 75) {
+                strengthBar.classList.add('password-strong');
+            } else {
+                strengthBar.classList.add('password-very-strong');
+            }
+        });
+
+        // Set initial role based on model or default to client
+        document.addEventListener('DOMContentLoaded', function() {
+            const roleValue = document.getElementById('userRole').value || 'client';
+            const initialOption = document.querySelector(`[data-type="${roleValue}"]`);
+            if (initialOption) {
+                initialOption.click();
+            }
+        });
+
+        // Preview profile picture
+        const profilePictureInput = document.getElementById('ProfilePicture');
+        if (profilePictureInput) {
+            profilePictureInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    console.log('File selected:', file.name);
+                    // You can add preview functionality here
+                }
+            });
+        }
+    </script>
+}

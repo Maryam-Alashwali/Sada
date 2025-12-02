@@ -1,0 +1,62 @@
+﻿@model IEnumerable<Sada.ViewModels.Tailor.CategorySelectItem>
+
+<!-- Add Service Modal -->
+<div class="modal fade" id="addServiceModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Service</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-area="Tailor" asp-controller="Service" asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Service Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="ServiceName"
+                                   placeholder="e.g., Dress Alterations" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Category <span class="text-danger">*</span></label>
+                            <select class="form-select" name="CategoryId" required>
+                                <option value="">Select Category</option>
+                                @if (Model != null)
+                                {
+                                    @foreach (var category in Model)
+                                    {
+                                        <option value="@category.CategoryId">@category.CategoryName</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Description <span class="text-danger">*</span></label>
+                            <textarea class="form-control" name="ServiceDescription" rows="4"
+                                      placeholder="Describe your service in detail..." required maxlength="1000"></textarea>
+                            <div class="form-text">Maximum 1000 characters</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Base Price (SAR) <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" name="BasePrice"
+                                       step="0.01" min="0" placeholder="0.00" required>
+                                <span class="input-group-text">SR</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Duration (Days) <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" name="Duration"
+                                   min="1" placeholder="e.g., 7" required>
+                            <div class="form-text">Estimated completion time in days</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Service</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

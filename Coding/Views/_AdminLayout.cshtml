@@ -1,0 +1,207 @@
+﻿@* Views/Shared/_AdminLayout.cshtml (admin.blade.php) *@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/dash.css">
+    <style>
+        .btn-dark-blue {
+            background-color: var(--dark-blue);
+            color: white;
+            border: none;
+        }
+
+            .btn-dark-blue:hover {
+                background-color: var(--lavender);
+            }
+
+        .offcanvas {
+            background-color: var(--light-blue);
+            border-left: 4px solid var(--lavender);
+        }
+
+        .list-group-item {
+            padding: 1rem 1.25rem;
+            font-weight: 500;
+            color: var(--dark-blue);
+            transition: all 0.3s ease;
+        }
+
+            .list-group-item:hover {
+                background-color: var(--light-teal);
+                color: white;
+            }
+
+            .list-group-item.active {
+                background-color: var(--lavender);
+                color: white;
+                font-weight: 600;
+            }
+
+        .notification-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: var(--lavender);
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 50%;
+        }
+    </style>
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+
+    <header class="dashboard-header sticky-top">
+        <div class="container d-flex justify-content-between align-items-center py-0">
+            <a class="navbar-brand d-flex align-items-center" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                <img height="70" src="~/logo.png" class="me-2" alt="Sada Logo">
+            </a>
+            <div class="text-center d-none d-md-block">
+                <h5 class="mb-0 fw-semibold">Welcome back, Admin</h5>
+                <small class="text-muted">Admin Dashboard</small>
+            </div>
+            <!-- Right Section -->
+            <div class="d-flex align-items-center gap-3">
+                <!-- Notification -->
+                <div class="dropdown">
+                    <button class="btn btn-outline-primary position-relative dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-bell"></i>
+                        @{
+                            var adminId = ViewBag.CurrentAdminId ?? 0;
+                            var unreadNotifications = ViewBag.UnreadNotificationsCount ?? 0;
+                        }
+                        @if (unreadNotifications > 0)
+                        {
+                            <span class="notification-badge">@unreadNotifications</span>
+                        }
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" style="min-width: 300px;">
+                        <li class="dropdown-header d-flex justify-content-between align-items-center">
+                            <span>Notifications</span>
+                            @if (unreadNotifications > 0)
+                            {
+                                <a href="#" class="btn btn-sm btn-outline-primary">View All</a>
+                            }
+                        </li>
+                        <li><a class="dropdown-item text-muted" href="#">No notifications</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-center" href="#">See all notifications</a></li>
+                    </ul>
+                </div>
+                <!-- Profile Dropdown -->
+                <div class="dropdown">
+                    <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-shield me-2"></i>
+                        @User.Identity?.Name
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" asp-area="Admin" asp-controller="Profile" asp-action="Edit"><i class="fas fa-user me-2"></i> Profile</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form method="POST" asp-controller="Auth" asp-action="Logout" id="logoutForm">
+                                @Html.AntiForgeryToken()
+                                <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logoutForm').submit();">
+                                    <i class="fas fa-sign-out-alt me-2"></i> Logout
+                                </a>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Menu Button -->
+                <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="py-4">
+        <div class="container">
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+            @RenderBody()
+        </div>
+    </main>
+
+    <!-- Right Sidebar Menu -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="sidebarMenu" aria-labelledby="sidebarMenuLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title fw-bold text-primary" id="sidebarMenuLabel">
+                <i class="fas fa-user-shield me-2"></i> Admin Menu
+            </h5>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+
+        <div class="offcanvas-body p-0">
+            <ul class="list-group list-group-flush">
+                <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index"
+                   class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active" : "")">
+                    <i class="fas fa-home me-2"></i> Dashboard
+                </a>
+                <a asp-area="Admin" asp-controller="User" asp-action="Index"
+                   class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["controller"]?.ToString() == "User" ? "active" : "")">
+                    <i class="fas fa-users me-2"></i> Manage Users
+                    @{
+                        var pendingTailors = ViewBag.PendingTailorsCount ?? 0;
+                    }
+                    @if (pendingTailors > 0)
+                    {
+                        <span class="badge bg-warning float-end">@pendingTailors</span>
+                    }
+                </a>
+                <a asp-area="Admin" asp-controller="Review" asp-action="Index"
+                   class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["controller"]?.ToString() == "Review" ? "active" : "")">
+                    <i class="fas fa-star me-2"></i> Moderate Reviews
+                </a>
+                <a asp-area="Admin" asp-controller="Advertisement" asp-action="Index"
+                   class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["controller"]?.ToString() == "Advertisement" ? "active" : "")">
+                    <i class="fas fa-bullhorn me-2"></i> Advertisements
+                </a>
+                <a asp-area="Admin" asp-controller="Report" asp-action="Index"
+                   class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["controller"]?.ToString() == "Report" ? "active" : "")">
+                    <i class="fas fa-chart-bar me-2"></i> Reports
+                </a>
+                <a asp-area="Admin" asp-controller="Profile" asp-action="Edit"
+                   class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["controller"]?.ToString() == "Profile" ? "active" : "")">
+                    <i class="fas fa-user me-2"></i> Profile
+                </a>
+                <a href="#" class="list-group-item list-group-item-action text-danger"
+                   onclick="event.preventDefault(); document.getElementById('logoutForm').submit();">
+                    <i class="fas fa-sign-out-alt me-2"></i> Logout
+                </a>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Hidden Logout Form -->
+    <form method="POST" asp-controller="Auth" asp-action="Logout" id="logoutForm" class="d-none">
+        @Html.AntiForgeryToken()
+    </form>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

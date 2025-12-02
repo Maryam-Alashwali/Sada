@@ -1,0 +1,180 @@
+﻿@* ========================================== *@
+@* Views/Admin/Report/Users.cshtml *@
+@* ========================================== *@
+@model Sada.ViewModels.Admin.UserReportViewModel
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "User Analytics Report";
+}
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">User Analytics Report</h2>
+            <p class="text-muted mb-0">Platform user statistics and growth analytics</p>
+        </div>
+        <div>
+            <a asp-action="Index" class="btn btn-outline-primary me-2">
+                <i class="fas fa-arrow-left me-2"></i>Back to Reports
+            </a>
+        </div>
+    </div>
+
+    <!-- User Statistics -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="stats-number">@Model.Stats.TotalUsers</div>
+                <div class="stats-label">Total Users</div>
+                <i class="fas fa-users fa-2x mt-3 text-primary"></i>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="stats-number">@Model.Stats.TotalTailors</div>
+                <div class="stats-label">Total Tailors</div>
+                <i class="fas fa-user-tie fa-2x mt-3 text-success"></i>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="stats-number">@Model.Stats.TotalClients</div>
+                <div class="stats-label">Total Clients</div>
+                <i class="fas fa-user fa-2x mt-3 text-info"></i>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="stats-card">
+                <div class="stats-number">@Model.Stats.ActiveUsers</div>
+                <div class="stats-label">Active Users</div>
+                <i class="fas fa-user-check fa-2x mt-3 text-warning"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- User Status Breakdown -->
+        <div class="col-lg-6 mb-4">
+            <div class="data-card">
+                <h5 class="mb-3">User Status Overview</h5>
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="border-end">
+                            <div class="stats-number text-success">@Model.Stats.ActiveUsers</div>
+                            <div class="stats-label">Active</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="border-end">
+                            <div class="stats-number text-danger">@Model.Stats.BlockedUsers</div>
+                            <div class="stats-label">Blocked</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="stats-number text-warning">@Model.Stats.PendingTailors</div>
+                        <div class="stats-label">Pending Tailors</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users by Role -->
+        <div class="col-lg-6 mb-4">
+            <div class="data-card">
+                <h5 class="mb-3">Users by Role</h5>
+                @if (Model.UsersByRole.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Role</th>
+                                    <th class="text-end">Count</th>
+                                    <th class="text-end">Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var role in Model.UsersByRole)
+                                {
+                                    <tr>
+                                        <td>
+                                            <span class="badge @(role.Role == "tailor" ? "bg-primary" : role.Role == "client" ? "bg-success" : "")">
+                                                @role.Role.ToUpper()
+                                            </span>
+                                        </td>
+                                        <td class="text-end">@role.Count</td>
+                                        <td class="text-end">
+                                            @(((double)role.Count / Model.Stats.TotalUsers * 100).ToString("N1"))%
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted text-center">No user role data available</p>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Registrations -->
+    <div class="row">
+        <div class="col-12">
+            <div class="data-card">
+                <h5 class="mb-3">Recent User Registrations</h5>
+                @if (Model.RecentRegistrations.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Role</th>
+                                    <th>Email</th>
+                                    <th>Registration Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var user in Model.RecentRegistrations)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="rounded-circle bg-light-teal d-flex align-items-center justify-content-center me-2"
+                                                     style="width: 35px; height: 35px;">
+                                                    <i class="fas fa-user text-dark-blue"></i>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0">@user.FullName</h6>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge @(user.Role == "tailor" ? "bg-primary" : user.Role == "client" ? "bg-success" : "")">
+                                                @user.Role.ToUpper()
+                                            </span>
+                                        </td>
+                                        <td>@user.Email</td>
+                                        <td>
+                                            <small class="text-muted">
+                                                @user.CreatedAt?.ToString("MMM d, yyyy")
+                                            </small>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted text-center">No recent registrations</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>

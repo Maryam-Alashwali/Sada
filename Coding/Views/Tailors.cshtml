@@ -1,0 +1,414 @@
+﻿@model Sada.ViewModels.Guest.TailorSearchViewModel
+@{
+    ViewData["Title"] = "Find Tailors - Sada";
+}
+
+<!-- Page Header -->
+<section class="page-header bg-white py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-12 text-center">
+                <h1 class="h2 mb-2">Find Professional Tailors</h1>
+                <p class="lead mb-0">Discover skilled tailors in your area for all your tailoring needs</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Categories Section -->
+@if (Model.Categories?.Any() == true)
+{
+    <section class="categories-section py-5 bg-white">
+        <div class="container">
+            <h2 class="section-title text-center mb-5">Browse by Category</h2>
+            <div class="row g-4">
+                @foreach (var category in Model.Categories)
+                {
+                    <div class="col-md-4">
+                        <div class="category-card text-center h-100">
+                            <div class="category-icon mb-3">
+                                <i class="fas fa-tshirt"></i>
+                            </div>
+                            <h5 class="card-title text-pecan mb-2">@category.CategoryName</h5>
+                            <p class="card-text text-muted mb-3">@category.ServiceCount services available</p>
+                            <a asp-controller="Guest" asp-action="Tailors" asp-route-category="@category.CategoryId"
+                               class="btn btn-outline-primary btn-sm">
+                                Find Tailors
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+}
+
+<!-- Search & Filters Section -->
+<section class="py-4 bg-light">
+    <div class="container">
+        <form id="searchForm" asp-controller="Guest" asp-action="Tailors" method="get">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <input type="text" name="search" class="form-control"
+                           placeholder="Search by name or service..."
+                           value="@Model.SearchTerm">
+                </div>
+                <div class="col-md-3">
+                    <input type="text" name="location" class="form-control"
+                           placeholder="Location..."
+                           value="@Model.Location">
+                </div>
+                <div class="col-md-2">
+                    <select name="category" class="form-select">
+                        <option value="">All Categories</option>
+                        @foreach (var category in Model.Categories)
+                        {
+                            <option value="@category.CategoryId"
+                                    selected="@(Model.CategoryId == category.CategoryId)">
+                                @category.CategoryName
+                            </option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="minRating" class="form-select">
+                        <option value="">All Ratings</option>
+                        <option value="4" selected="@(Model.MinRating == 4)">4+ Stars</option>
+                        <option value="3" selected="@(Model.MinRating == 3)">3+ Stars</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search me-1"></i> Search
+                    </button>
+                </div>
+            </div>
+            <input type="hidden" name="sort" value="@Model.SortBy" />
+        </form>
+    </div>
+</section>
+
+<!-- Tailors Listing Section -->
+<section class="py-5">
+    <div class="container">
+        <!-- Results Header -->
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <h2 class="h4 mb-1">
+                    @if (!string.IsNullOrEmpty(Model.SearchTerm) || !string.IsNullOrEmpty(Model.Location) ||
+                                        Model.CategoryId.HasValue || Model.MinRating.HasValue)
+                    {
+                        <text>Filtered Tailors</text>
+                    }
+                    else
+                    {
+                        <text>All Professional Tailors</text>
+                    }
+                </h2>
+                <p class="text-muted mb-0">
+                    @if (Model.Tailors?.Any() == true)
+                    {
+                        <text>Found <strong>@Model.Tailors.Count</strong> tailor@(Model.Tailors.Count > 1 ? "s" : "")</text>
+                        @if (Model.CurrentPage > 1)
+                        {
+                            <text> - Page @Model.CurrentPage of @Model.TotalPages</text>
+                        }
+                    }
+                    else
+                    {
+                        <text>No tailors found matching your criteria</text>
+                    }
+                </p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-sort me-1"></i>
+                        Sort:
+                        @switch (Model.SortBy)
+                        {
+                            case "name":
+                                <text>Name A-Z</text>
+                                break;
+                            case "newest":
+                                <text>Newest</text>
+                                break;
+                            case "reviews":
+                                <text>Most Reviews</text>
+                                break;
+                            default:
+                                <text>Highest Rated</text>
+                                break;
+                        }
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item @(Model.SortBy == "rating" ? "active" : "")"
+                               href="#" onclick="updateSort('rating')">
+                                <i class="fas fa-star me-2"></i>Highest Rated
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item @(Model.SortBy == "name" ? "active" : "")"
+                               href="#" onclick="updateSort('name')">
+                                <i class="fas fa-sort-alpha-down me-2"></i>Name A-Z
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item @(Model.SortBy == "newest" ? "active" : "")"
+                               href="#" onclick="updateSort('newest')">
+                                <i class="fas fa-calendar-plus me-2"></i>Newest First
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item @(Model.SortBy == "reviews" ? "active" : "")"
+                               href="#" onclick="updateSort('reviews')">
+                                <i class="fas fa-comments me-2"></i>Most Reviews
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tailors Grid -->
+        @if (Model.Tailors?.Any() == true)
+        {
+            <div class="row g-4">
+                @foreach (var tailor in Model.Tailors)
+                {
+                    <div class="col-xl-4 col-lg-6">
+                        <div class="card tailor-card h-100 shadow-sm">
+                            <div class="position-relative overflow-hidden">
+                                <img style="height: 250px; object-fit: cover;"
+                                     src="@Url.Content(tailor.ProfilePicture ?? "~/logo.png")"
+                                     class="card-img-top"
+                                     alt="@tailor.FullName"
+                                     onerror="this.src='@Url.Content("~/logo.png")'">
+                                <div class="position-absolute top-0 end-0 m-3">
+                                    <span class="badge bg-warning px-2 py-1">
+                                        <i class="fas fa-star me-1"></i>
+                                        @((tailor.AverageRating ?? 0).ToString("F1"))
+                                        <small class="opacity-75">(@tailor.ReviewCount)</small>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="card-body d-flex flex-column">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h5 class="card-title mb-0">@tailor.FullName</h5>
+                                </div>
+
+                                <p class="text-muted mb-2">
+                                    <i class="fas fa-map-marker-alt me-1"></i>
+                                    @(tailor.Address ?? "Location not specified")
+                                </p>
+
+                                <p class="card-text text-muted small mb-3">
+                                    Professional tailoring services with quality craftsmanship
+                                </p>
+
+                                <div class="mb-3">
+                                    @foreach (var serviceName in tailor.ServiceNames.Take(2))
+                                    {
+                                        <span class="service-badge">@serviceName</span>
+                                    }
+                                    @if (tailor.ServiceNames.Count > 2)
+                                    {
+                                        <span class="service-badge">+@(tailor.ServiceNames.Count - 2) more</span>
+                                    }
+                                </div>
+
+                                <div class="mt-auto">
+                                    <a asp-controller="Guest" asp-action="TailorProfile" asp-route-id="@tailor.TailorId"
+                                       class="btn btn-primary w-100">
+                                        <i class="fas fa-eye me-1"></i>View Profile & Services
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Pagination -->
+            @if (Model.TotalPages > 1)
+            {
+                <div class="row mt-5">
+                    <div class="col-12">
+                        <nav aria-label="Tailors pagination">
+                            <ul class="pagination justify-content-center">
+                                @if (Model.CurrentPage > 1)
+                                {
+                                    <li class="page-item">
+                                        <a class="page-link" asp-route-page="@(Model.CurrentPage - 1)"
+                                           asp-route-search="@Model.SearchTerm"
+                                           asp-route-location="@Model.Location"
+                                           asp-route-category="@Model.CategoryId"
+                                           asp-route-minRating="@Model.MinRating"
+                                           asp-route-sort="@Model.SortBy">
+                                            Previous
+                                        </a>
+                                    </li>
+                                }
+
+                                @for (int i = 1; i <= Model.TotalPages; i++)
+                                {
+                                    <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                                        <a class="page-link" asp-route-page="@i"
+                                           asp-route-search="@Model.SearchTerm"
+                                           asp-route-location="@Model.Location"
+                                           asp-route-category="@Model.CategoryId"
+                                           asp-route-minRating="@Model.MinRating"
+                                           asp-route-sort="@Model.SortBy">
+                                            @i
+                                        </a>
+                                    </li>
+                                }
+
+                                @if (Model.CurrentPage < Model.TotalPages)
+                                {
+                                    <li class="page-item">
+                                        <a class="page-link" asp-route-page="@(Model.CurrentPage + 1)"
+                                           asp-route-search="@Model.SearchTerm"
+                                           asp-route-location="@Model.Location"
+                                           asp-route-category="@Model.CategoryId"
+                                           asp-route-minRating="@Model.MinRating"
+                                           asp-route-sort="@Model.SortBy">
+                                            Next
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <!-- Empty State -->
+            <div class="text-center py-5">
+                <div class="empty-state-icon mb-4">
+                    <i class="fas fa-user-tie fa-4x text-muted opacity-25"></i>
+                </div>
+                <h3 class="h4 text-muted mb-3">No Tailors Found</h3>
+                <p class="text-muted mb-4">
+                    @if (!string.IsNullOrEmpty(Model.SearchTerm) || !string.IsNullOrEmpty(Model.Location) ||
+                                    Model.CategoryId.HasValue || Model.MinRating.HasValue)
+                    {
+                        <text>
+                            We couldn't find any tailors matching your search criteria.<br />
+                            Try adjusting your filters or
+                            <a asp-controller="Guest" asp-action="Tailors" class="text-primary">browse all tailors</a>.
+                        </text>
+                    }
+                    else
+                    {
+                        <text>
+                            There are currently no tailors available in your area.<br />
+                            Check back later or
+                            <a asp-controller="Auth" asp-action="Register" asp-route-role="tailor" class="text-primary">become a tailor</a> yourself!
+                        </text>
+                    }
+                </p>
+                <div class="d-flex gap-2 justify-content-center">
+                    <a asp-controller="Guest" asp-action="Tailors" class="btn btn-outline-primary">
+                        <i class="fas fa-redo me-1"></i>Clear Filters
+                    </a>
+                    <a asp-controller="Auth" asp-action="Register" asp-route-role="tailor" class="btn btn-primary">
+                        <i class="fas fa-user-tie me-1"></i>Join as Tailor
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+@section Styles {
+    <style>
+        .page-header {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        .categories-section {
+            background: linear-gradient(to right, #ffffff, #f8f9fa);
+        }
+
+        .tailor-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+            .tailor-card:hover {
+                transform: translateY(-8px);
+                box-shadow: 0 12px 35px rgba(0,0,0,0.15) !important;
+            }
+
+        .service-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            margin: 0.25rem;
+            background: #f8f9fa;
+            border-radius: 20px;
+            font-size: 0.875rem;
+        }
+
+        .category-card {
+            padding: 2rem;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+            .category-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            }
+
+        .category-icon {
+            font-size: 3rem;
+            color: var(--bs-primary);
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        function updateSort(sortBy) {
+            const form = document.getElementById('searchForm');
+            let sortInput = form.querySelector('input[name="sort"]');
+
+            if (!sortInput) {
+                sortInput = document.createElement('input');
+                sortInput.type = 'hidden';
+                sortInput.name = 'sort';
+                form.appendChild(sortInput);
+            }
+
+            sortInput.value = sortBy;
+            form.submit();
+        }
+
+        // Auto-submit form when pressing Enter in search fields
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInputs = document.querySelectorAll('input[type="text"]');
+
+            searchInputs.forEach(input => {
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        document.getElementById('searchForm').submit();
+                    }
+                });
+            });
+
+            // Update select inputs to auto-submit
+            const selects = document.querySelectorAll('select');
+            selects.forEach(select => {
+                select.addEventListener('change', function() {
+                    this.form.submit();
+                });
+            });
+        });
+    </script>
+}

@@ -1,0 +1,459 @@
+﻿@model Sada.ViewModels.Guest.TailorProfileViewModel
+@{
+    ViewData["Title"] = $"{Model.FullName} - Tailor Profile";
+}
+
+<!-- Profile Header -->
+<section class="profile-header">
+    <div class="container text-center py-3">
+        <img src="@Url.Content(Model.ProfilePicture ?? "~/logo.png")"
+             alt="@Model.FullName"
+             class="profile-avatar"
+             onerror="this.src='@Url.Content("~/logo.png")'">
+        <h1 class="mt-3 text-white">@Model.FullName</h1>
+        <p class="lead text-white-50">Professional Tailoring Services</p>
+        <div class="d-flex justify-content-center align-items-center mt-2 flex-wrap">
+            <span class="rating me-2">
+                @for (int i = 1; i <= 5; i++)
+                {
+                    @if (i <= Math.Floor(Model.AverageRating ?? 0))
+                    {
+                        <i class="fas fa-star"></i>
+                    }
+                    else if (i - 0.5 <= (Model.AverageRating ?? 0))
+                    {
+                        <i class="fas fa-star-half-alt"></i>
+                    }
+                    else
+                    {
+                        <i class="far fa-star"></i>
+                    }
+                }
+            </span>
+            <span class="me-3 text-white">@((Model.AverageRating ?? 0).ToString("F1")) (@Model.ReviewCount reviews)</span>
+            <span class="badge-verified">
+                <i class="fas fa-check-circle"></i> Verified Tailor
+            </span>
+        </div>
+        <div class="mt-3 text-white-50">
+            <i class="fas fa-map-marker-alt me-1"></i>
+            @(Model.Address ?? "Location not specified")
+        </div>
+    </div>
+</section>
+
+<!-- Main Content -->
+<div class="container py-5">
+    <div class="row">
+        <!-- Left Column - Profile Info -->
+        <div class="col-lg-8">
+            <!-- About Section -->
+            <div class="profile-card mb-4">
+                <h3 class="section-title-t">About</h3>
+                <p class="text-muted">
+                    Professional tailor with expertise in various tailoring services.
+                    @Model.FullName specializes in delivering high-quality tailoring services
+                    with attention to detail and customer satisfaction.
+                </p>
+
+                @if (!string.IsNullOrEmpty(Model.Address))
+                {
+                    <div class="mt-4">
+                        <h5>Workshop Address</h5>
+                        <p class="text-muted">@Model.Address</p>
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(Model.Phone))
+                {
+                    <div class="mt-4">
+                        <h5>Contact</h5>
+                        <p class="text-muted">
+                            <i class="fas fa-phone me-2"></i>@Model.Phone
+                        </p>
+                    </div>
+                }
+
+                @if (Model.Services?.Any() == true)
+                {
+                    <div class="mt-4">
+                        <h5>Specializations</h5>
+                        <div>
+                            @foreach (var service in Model.Services.Take(6))
+                            {
+                                <span class="service-badge">@service.ServiceName</span>
+                            }
+                            @if (Model.Services.Count > 6)
+                            {
+                                <span class="service-badge">+@(Model.Services.Count - 6) more</span>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Services Section -->
+            @if (Model.Services?.Any() == true)
+            {
+                <div class="profile-card mb-4">
+                    <h3 class="section-title-t">Services & Pricing</h3>
+                    @foreach (var service in Model.Services)
+                    {
+                        <div class="service-card @(!Model.Services.Last().Equals(service) ? "mb-4" : "")">
+                            <h5 class="text-pecan">@service.ServiceName</h5>
+                            <p class="text-muted mb-2">@service.ServiceDescription</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="price text-primary fw-bold">@service.BasePrice?.ToString("F2") SR</span>
+                                <span class="service-badge">@service.Duration days</span>
+                            </div>
+                            @if (service.AverageRating.HasValue)
+                            {
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-star text-warning"></i>
+                                        @service.AverageRating.Value.ToString("F1")
+                                    </small>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+
+            <!-- Reviews Section -->
+            @if (Model.Reviews?.Any() == true)
+            {
+                <div class="profile-card">
+                    <h3 class="section-title-t">Customer Reviews</h3>
+                    @foreach (var review in Model.Reviews.Take(5))
+                    {
+                        <div class="review-card @(!Model.Reviews.Take(5).Last().Equals(review) ? "mb-4" : "")">
+                            <div class="d-flex">
+                                <div class="review-avatar me-3">
+                                    <i class="fas fa-user-circle fa-2x text-muted"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <h6 class="mb-1">@review.ClientName</h6>
+                                        <span class="rating">
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                @if (i <= (review.Rating ?? 0))
+                                                {
+                                                    <i class="fas fa-star text-warning"></i>
+                                                }
+                                                else
+                                                {
+                                                    <i class="far fa-star text-warning"></i>
+                                                }
+                                            }
+                                        </span>
+                                    </div>
+                                    <small class="text-muted">
+                                        @if (review.ReviewCreatedAt.HasValue)
+                                        {
+                                            var timeAgo = DateTime.Now - review.ReviewCreatedAt.Value;
+                                            if (timeAgo.TotalDays < 1)
+                                            {
+                                                <text>@((int)timeAgo.TotalHours) hours ago</text>
+                                            }
+                                            else if (timeAgo.TotalDays < 30)
+                                            {
+                                                <text>@((int)timeAgo.TotalDays) days ago</text>
+                                            }
+                                            else
+                                            {
+                                                <text>@review.ReviewCreatedAt.Value.ToString("MMM dd, yyyy")</text>
+                                            }
+                                        }
+                                    </small>
+                                    @if (!string.IsNullOrEmpty(review.Comment))
+                                    {
+                                        <p class="mt-2 mb-0 text-muted">@review.Comment</p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    @if (Model.Reviews.Count > 5)
+                    {
+                        <div class="text-center mt-4">
+                            <button class="btn btn-outline-primary" onclick="alert('View all reviews functionality')">
+                                View All @Model.ReviewCount Reviews
+                            </button>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="profile-card">
+                    <h3 class="section-title-t">Customer Reviews</h3>
+                    <div class="text-center py-4">
+                        <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No reviews yet. Be the first to review this tailor!</p>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Right Column - Actions & Info -->
+        <div class="col-lg-4">
+            <div class="action-buttons-profile">
+                <!-- Action Buttons -->
+                <div class="profile-card mb-4">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        @if (User.IsInRole("client"))
+                        {
+                            <a asp-area="Client" asp-controller="ClientOrder" asp-action="Create"
+                               asp-route-tailorId="@Model.TailorId"
+                               class="btn btn-primary w-100 mb-3">
+                                <i class="fas fa-calendar-check me-2"></i> Make Order
+                            </a>
+
+                            // Check if user has order with this tailor
+                            var hasOrder = ViewBag.HasOrder as bool? ?? false;
+
+                            @if (hasOrder)
+                            {
+                                <a asp-area="Client" asp-controller="Message" asp-action="Conversation"
+                                   asp-route-tailorId="@Model.TailorId"
+                                   class="btn btn-outline-primary w-100 mb-3">
+                                    <i class="fas fa-envelope me-2"></i> Send Message
+                                </a>
+                            }
+                            else
+                            {
+                                <button class="btn btn-outline-secondary w-100 mb-3" disabled
+                                        title="You can only message tailors you have an order with">
+                                    <i class="fas fa-envelope me-2"></i> Send Message
+                                </button>
+                            }
+                        }
+                    }
+                    else
+                    {
+                        <a asp-controller="Auth" asp-action="Login" class="btn btn-primary w-100 mb-3">
+                            <i class="fas fa-calendar-check me-2"></i> Make Order
+                        </a>
+                        <a asp-controller="Auth" asp-action="Login" class="btn btn-outline-primary w-100 mb-3">
+                            <i class="fas fa-envelope me-2"></i> Send Message
+                        </a>
+                    }
+                </div>
+
+                <!-- Statistics -->
+                <div class="profile-card mb-4">
+                    <h5 class="section-title-t">Statistics</h5>
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="stats-card">
+                                <div class="stats-number text-primary">@Model.ReviewCount</div>
+                                <div class="stats-label">Reviews</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stats-card">
+                                <div class="stats-number text-primary">@(ViewBag.CompletedOrders ?? 0)</div>
+                                <div class="stats-label">Orders</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stats-card">
+                                <div class="stats-number text-primary">
+                                    @if (Model.ReviewCount > 0 && Model.Reviews != null)
+                                    {
+                                        var positiveReviews = Model.Reviews.Count(r => r.Rating >= 4);
+                                        var satisfaction = (positiveReviews * 100.0 / Model.ReviewCount);
+                                        <text>@satisfaction.ToString("F0")%</text>
+                                    }
+                                    else
+                                    {
+                                        <text>0%</text>
+                                    }
+                                </div>
+                                <div class="stats-label">Satisfaction</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Availability -->
+                @if (Model.Availabilities?.Any() == true)
+                {
+                    <div class="profile-card mb-4">
+                        <h5 class="section-title-t">Availability</h5>
+                        @{
+                            var daysOfWeek = new[] { "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday" };
+                        }
+                        @foreach (var day in daysOfWeek)
+                        {
+                            var dayAvailability = Model.Availabilities.FirstOrDefault(a =>
+                            a.DayOfWeek?.ToLower() == day);
+
+                            @if (dayAvailability != null)
+                            {
+                                <div class="availability-day mb-3">
+                                    <strong class="text-capitalize">@day</strong>
+                                    <div class="mt-2">
+                                        @if (dayAvailability.IsAvailable && dayAvailability.StartTime != null && dayAvailability.EndTime != null)
+                                        {
+                                            <span class="time-slot available">
+                                                @dayAvailability.StartTime.Value.ToString("hh:mm tt") -
+                                                @dayAvailability.EndTime.Value.ToString("hh:mm tt")
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="time-slot unavailable">Not Available</span>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                }
+
+                <!-- Service Methods -->
+                <div class="profile-card">
+                    <h5 class="section-title-t">Service Methods</h5>
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-truck me-3 text-primary" style="font-size: 1.5rem;"></i>
+                        <div>
+                            <h6 class="mb-0">Pickup & Delivery</h6>
+                            <small class="text-muted">Available in @(Model.Address?.Split(',').FirstOrDefault() ?? "your area")</small>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-home me-3 text-primary" style="font-size: 1.5rem;"></i>
+                        <div>
+                            <h6 class="mb-0">Home Visits</h6>
+                            <small class="text-muted">Available by appointment</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .profile-header {
+            background: linear-gradient(135deg, var(--bs-primary) 0%, #0056b3 100%);
+            padding: 3rem 0;
+        }
+
+        .profile-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 5px solid white;
+            object-fit: cover;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .badge-verified {
+            background: rgba(255,255,255,0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            color: white;
+            font-size: 0.875rem;
+        }
+
+        .profile-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .section-title-t {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--bs-primary);
+        }
+
+        .service-card {
+            padding: 1.5rem;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+            .service-card:hover {
+                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                transform: translateY(-2px);
+            }
+
+        .service-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            margin: 0.25rem;
+            background: #f8f9fa;
+            border-radius: 20px;
+            font-size: 0.875rem;
+        }
+
+        .review-card {
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+            .review-card:last-child {
+                border-bottom: none;
+            }
+
+        .stats-card {
+            padding: 1rem;
+        }
+
+        .stats-number {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .stats-label {
+            font-size: 0.875rem;
+            color: #6c757d;
+        }
+
+        .availability-day {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+            .availability-day:last-child {
+                border-bottom: none;
+            }
+
+        .time-slot {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 5px;
+            font-size: 0.875rem;
+        }
+
+            .time-slot.available {
+                background: #d4edda;
+                color: #155724;
+            }
+
+            .time-slot.unavailable {
+                background: #f8d7da;
+                color: #721c24;
+            }
+
+        .text-pecan {
+            color: #8B4513;
+        }
+
+        .price {
+            font-size: 1.25rem;
+        }
+    </style>
+}

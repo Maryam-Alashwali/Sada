@@ -1,0 +1,267 @@
+﻿@model Sada.ViewModels.Client.OrderTrackViewModel
+@{
+    ViewData["Title"] = $"Track Order #{Model.Order.OrderId}";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dash.css" />
+    <style>
+        .profile-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+            .timeline::before {
+                content: '';
+                position: absolute;
+                left: 1rem;
+                top: 0;
+                bottom: 0;
+                width: 2px;
+                background: #e9ecef;
+            }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 2rem;
+            display: flex;
+            align-items: flex-start;
+        }
+
+            .timeline-item.completed .timeline-marker {
+                background: #28a745;
+                color: white;
+            }
+
+            .timeline-item.active .timeline-marker {
+                background: #0d6efd;
+                color: white;
+                animation: pulse 2s infinite;
+            }
+
+            .timeline-item:not(.completed):not(.active) .timeline-marker {
+                background: #6c757d;
+                color: white;
+            }
+
+        .timeline-marker {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            left: -2rem;
+            top: 0;
+            z-index: 2;
+            font-size: 0.75rem;
+        }
+
+        .timeline-content {
+            flex: 1;
+            padding-left: 1.5rem;
+        }
+
+        @@keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .status-requested {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .status-accepted {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+
+        .status-in-progress, .status-in_progress {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+
+        .status-completed {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+
+        .status-cancelled {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem 0 0 0;
+            border-top: 2px solid #2c5530;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #2c5530;
+        }
+    </style>
+}
+
+<div class="container my-4">
+    <!-- Page Header -->
+    <div class="profile-card mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="h2 mb-2">Track Order #@Model.Order.OrderId</h1>
+                <p class="text-muted mb-0">
+                    @string.Join(", ", Model.Order.Services.Select(s => s.ServiceName))
+                </p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <a asp-area="Client" asp-controller="ClientOrder" asp-action="Index" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-2"></i> Back to Orders
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Order Timeline -->
+            <div class="profile-card">
+                <h4 class="mb-4">Order Status Timeline</h4>
+
+                <div class="timeline">
+                    @foreach (var step in Model.StatusTimeline)
+                    {
+                        <div class="timeline-item @(step.Completed ? "completed" : "") @(step.Active ? "active" : "")">
+                            <div class="timeline-marker">
+                                @if (step.Completed)
+                                {
+                                    <i class="fas fa-check"></i>
+                                }
+                                else if (step.Active)
+                                {
+                                    <i class="fas fa-circle"></i>
+                                }
+                                else
+                                {
+                                    <i class="far fa-circle"></i>
+                                }
+                            </div>
+                            <div class="timeline-content">
+                                <h5 class="mb-1">@step.Label</h5>
+                                <p class="text-muted mb-1">@step.Description</p>
+                                @if (step.Date.HasValue)
+                                {
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock me-1"></i>
+                                        @step.Date.Value.ToString("MMM dd, yyyy 'at' h:mm tt")
+                                    </small>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Tailor Information -->
+            <div class="profile-card mt-4">
+                <h4 class="mb-4">Tailor Information</h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        <strong>Tailor Name:</strong>
+                        <p class="mb-3">@Model.Order.TailorName</p>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Contact:</strong>
+                        <p class="mb-3">@Model.Order.TailorPhone</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Order Summary -->
+            <div class="profile-card">
+                <h5 class="mb-3">Order Summary</h5>
+                <div class="order-summary">
+                    @foreach (var service in Model.Order.Services)
+                    {
+                        <div class="summary-item">
+                            <span>@service.ServiceName</span>
+                            <span>@service.Price?.ToString("N2") SR</span>
+                        </div>
+                    }
+
+                    <div class="summary-total">
+                        <span>Total</span>
+                        <span>@Model.Order.TotalPrice?.ToString("N2") SR</span>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <strong>Current Status:</strong>
+                    <div class="mt-2">
+                        <span class="status-badge status-@Model.Order.OrderStatus?.ToLower().Replace("_", "-")">
+                            @Model.Order.OrderStatus?.Replace("_", " ")
+                        </span>
+                    </div>
+                </div>
+
+                @if (Model.Order.CompletionDate.HasValue && Model.Order.OrderStatus == "completed")
+                {
+                    <div class="mt-3">
+                        <strong>Completed On:</strong>
+                        <p class="mb-0 text-success">
+                            @Model.Order.CompletionDate.Value.ToString("MMMM dd, yyyy")
+                        </p>
+                    </div>
+                }
+            </div>
+
+            <!-- Help Section -->
+            <div class="profile-card mt-4">
+                <h5 class="mb-3">Need Help?</h5>
+                <p class="text-muted small mb-3">
+                    If you have any questions about your order status, please contact the tailor directly or reach out to our support team.
+                </p>
+                <div class="d-grid gap-2">
+                    <a asp-area="Client" asp-controller="Message" asp-action="Conversation" asp-route-tailorId="@Model.Order.OrderId" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-comment me-2"></i> Message Tailor
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
